@@ -1,0 +1,77 @@
+{% macro scheduled_question(question_and_time) -%}
+<td>
+  <abbr title="{{ question_and_time[1]}}">{{ question_and_time[1] }}</a>
+</td>
+<td>
+  {% set p = r()%}
+  <span class="pie">{{ p }}, {{ 1 - p }}</span>
+</td>
+<td>{{ question_and_time[2] }}</td>
+<td class="actions"><a href="#">Reschedule</a> or <a href="#">Delete</a></td>
+{%- endmacro %}
+
+{% extends "layouts/base.html" %}
+{% block head %}
+<style>
+  h1 { text-align: center; }
+  .actions { opacity: 0.3; }
+  tr:hover .actions { opacity: 1; }
+</style>
+
+<script>
+$(function(){
+    $("span.pie").peity("pie", {colours: ["#4d89f9", "#c6d9fd"]})
+});
+</script>
+{% endblock %}
+
+{% block body %}
+<div class="wrapper">
+  {{ navbar('schedule') }}  
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Phone Number</th>
+        <th>Question</th>
+        <th><abbr title="Response Rate">RR</abbrev></th>
+        <th>Time</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for phone_number in schedule %}
+        {% set question_times = schedule[phone_number] %}
+      <tr>
+        <td rowspan={{question_times | length}}>
+          <a href="tel:+1{{phone_number}}">{{ phone_number }}</a>
+        </td>
+        {{ scheduled_question(question_times[0]) }}        
+      </tr>
+        {% for question_and_time in question_times[1:] %}
+      <tr>
+          {{ scheduled_question(question_and_time) }}
+      </tr>      
+        {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <hr/>
+  
+  <form action="/schedule" method="POST">
+    <legend>Add to the Schedule</legend>
+    <div class="form-group">
+      <input type="file" name="schedule-file">
+      <p class="help-block">Upload a <abbr title="comma-separated values">CSV</abbr> file in the <a href="/help#csv-fmt">proper format</a>. Or, enter a new record below:</p>
+    </div>
+    <div class="form-group">
+      <input type="text" name="phone-number" placeholder="Phone Number">
+      <input type="text" name="question-id" placeholder="Question ID">
+      <input type="text" name="time" placeholder="Scheduled Time">
+      <p class="help-block">Be sure to enter the time in the <a href="/help#time-fmt">proper format</a>.</p>
+    </div>
+    <button class="btn btn-info">Add to Schedule</button>
+  </form>
+</div>
+{% endblock %}

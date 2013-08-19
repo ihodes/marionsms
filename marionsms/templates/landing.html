@@ -1,0 +1,31 @@
+{% extends "layouts/base.html" %}
+{% block head %}
+<style>
+  .wrapper { margin: 0 auto; max-width: 400px; }
+  form { margin: 23px 0; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="wrapper">
+  <div>
+    <h1>Sign in to Marion SMS</h1>
+    <form action="/login" method="POST" role="form"
+          class="form-inline" id="login-form">
+      <div class="form-group">
+        <input type="text" class="form-control input-sm"
+               placeholder="User Name">
+      </div>
+      <div class="form-group">
+        <input type="password" class="form-control input-sm" 
+               placeholder="Password">
+      </div>
+      
+      <button type="submit" class="btn btn-default btn-sm">Sign in</button>
+      <br>
+      <small>To request more information, please email <a href="mailto:isaac@getmarion.com">isaac@getmarion.com</a>.</small>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

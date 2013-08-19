@@ -1,0 +1,36 @@
+{% extends "layouts/base.html" %}
+{% block head %}
+<style>
+  .wrapper { max-width: 800px; margin: 0 auto; }
+  h1 { text-align: center; }
+</style>
+
+<script>
+$(function(){
+    $("span.pie").peity("pie", {colours: ["#4d89f9", "#c6d9fd"]})
+});
+</script>
+{% endblock %}
+
+{% block body %}
+<div class="wrapper">
+  {{ navbar("home") }}
+
+<h1>Welcome back to Marion SMS</h1>
+
+<p>
+  Today, we've introduced a feature which will blow your minds. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+</p>
+<p>
+  Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+</p>
+
+<div class="well">
+  <p class="lead">Quick Stats for <b>Long Term Care, Inc.</b></p>
+  <small>January 17th, 2014</small>
+  <p>...</p>
+</div>
+
+</div>
+
+{% endblock %}

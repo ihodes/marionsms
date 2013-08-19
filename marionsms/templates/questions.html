@@ -1,0 +1,55 @@
+{% extends "layouts/base.html" %}
+{% block head %}
+<style>
+  h1 { text-align: center; }
+</style>
+
+<script>
+$(function(){
+    $("span.pie").peity("pie", {colours: ["#4d89f9", "#c6d9fd"]})
+});
+</script>
+{% endblock %}
+
+{% block body %}
+<div class="wrapper">
+  {{ navbar("questions") }}
+  
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Question ID</th>
+        <th>Name</th>
+        <th>Question</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+      {% for question in questions %}
+        <td>{{ question.id }}</td>
+        <td>{{ question.name }}</td>
+        <td>{{ question.text }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <hr>
+  
+  <form action="/questions" method="POST">
+    <legend>Create a New Question</legend>
+    <div class="form-group">
+      <input type="text" name="name" placeholder="Question Name" class="form-control">
+    </div>
+    
+    <div class="form-group">
+      <textarea name="text" class="form-control" rows="3" placeholder="Question text (no more than 150 characters)"></textarea>
+    </div>
+    
+    <button class="btn btn-info">Create New Question</button>
+  </form>
+</div>
+
+
+{% endblock %}
+
