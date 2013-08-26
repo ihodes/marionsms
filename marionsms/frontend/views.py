@@ -5,12 +5,17 @@ from flask import (Blueprint, render_template, current_app, request, json,
                    flash, url_for, redirect, session, abort, make_response)
 
 
+from ..notifier import send_nows_smss
 
 import marionsms.scheduler as s
 from ..extensions import db
 
-from ..models import *
+from ..models import Message, ScheduledMessage, Response
 
+
+
+DAYS_OF_WEEK = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday',
+                'saturday', 'sunday']
 
 
 frontend = Blueprint('frontend', __name__)
@@ -41,37 +46,98 @@ def logout():
     return redirect(url_for('.landing_page'))
 
 
+def _get_schedule():
+    schedule = defaultdict(list)
+    for scheduled_message in ScheduledMessage.query.all():
+        current_app.logger.info(scheduled_message)
+        if not scheduled_message.message.hidden or False:
+            schedule[scheduled_message.phone_number].append(scheduled_message)
+    return schedule
+
+
 # require login
-@frontend.route('/schedule', methods=['POST', 'GET'])
+@frontend.route('/schedule', methods=['POST', 'GET', 'DELETE'])
 def schedule():
     if request.method == 'POST':
-        is_csv = request.form.get('schedule-file', False)
-        if is_csv:
-            pass
-        else:
-            s.schedule(request.form)
+        sm = s.schedule(request.form.get('phone-number'), request.form.get('message-id'),
+                        request.form.get('frequency'), request.form.get('time'))
+        flash('Scheduled message \"{}\"  for {}'.format(sm.message.name, sm.phone_number),
+              'info')
         return redirect(url_for('.schedule'))
-    schedule = defaultdict(list)
-    for sq in ScheduledQuestion.query.all():
-        q = Question.query.get(sq.question_id)
-        schedule[sq.phone_number].append((q.text,
-                                          q.name,
-                                          sq.time))
-    return render_template('schedule.html', schedule=schedule, r=random.random)
-
-
-# require login
-@frontend.route('/report')
-def report():
-    return render_template('report.html')
-
-
-# require login
-@frontend.route('/questions', methods=['GET', 'POST'])
-def questions():
-    if request.method == 'POST':
-        q = Question(request.form['name'], request.form['text'])
-        db.session.add(q)
+    elif request.method == 'DELETE':
+        smid = request.values.get('scheduled_message_id')
+        sm = ScheduledMessage.query.get(smid)
+        name = sm.message.name
+        phone_number = sm.phone_number
+        db.session.delete(sm)
         db.session.commit()
-        return redirect(url_for('.questions'))
-    return render_template('questions.html', questions=Question.query.all())
+        flash('Removed message \"{}\"  scheduled for {}'.format(name, phone_number),
+              'warning')
+        return redirect(url_for('.schedule'))
+    return render_template('schedule.html', schedule=_get_schedule(),
+                           r=random.random, DAYS_OF_WEEK=DAYS_OF_WEEK)
+
+
+def responses_to_csv(responses):
+    csv = ''
+    for response in responses:
+        csv += response.phone_number
+        csv += ','
+        csv += str(response.answered_at)
+        csv += ','
+        csv += str(response.message_id)
+        csv += ','
+        csv += ("\""+response.text+"\"")
+        csv += '\n'
+
+    return csv
+
+
+@frontend.route('/report.csv')
+def generate_large_csv():
+    start_date = request.values.get('start-date')
+    end_date = request.values.get('end-date')
+    responses = Response.query.filter(Response.answered_at.between(start_date, end_date)).all()
+
+    csv = responses_to_csv(responses)
+    response = make_response(csv)
+    response.headers['Content-Type'] = 'text/csv'
+    return response
+
+
+# require login
+@frontend.route('/report', methods=['GET', 'POST'])
+def report():
+    responses = Response.query.order_by(Response.answered_at.desc()).all()
+    return render_template('report.html', 
+                           responses=responses)
+
+
+# require login
+@frontend.route('/messages', methods=['GET', 'POST', 'DELETE'])
+def messages():
+    if request.method == 'POST':
+        m = Message(request.form['name'], request.form['text'])
+        db.session.add(m)
+        db.session.commit()
+        flash('Created message \"{}\"'.format(m.name), 'info')
+        return redirect(url_for('.messages'))
+    elif request.method == 'DELETE':
+        message_id = request.values.get('message_id')
+        m = Message.query.get(message_id)
+        name = m.name
+        m.hidden = True
+        db.session.add(m)
+        db.session.commit()
+        flash('Removed message \"{}\"'.format(name), 'warning')
+        return redirect(url_for('.messages'))
+    return render_template('messages.html', messages=Message.query.filter_by(hidden=False).all())
+
+
+# require login
+@frontend.route('/demo', methods=['GET', 'POST'])
+def demo():
+    if request.method == 'POST':
+        current_app.logger.info("SENDING TEXTS... (from /demo)")
+        send_nows_smss()
+    return render_template('demo.html')

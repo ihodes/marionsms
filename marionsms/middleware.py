@@ -8,9 +8,9 @@ class MethodRewriteMiddleware(object):
         self.app = app
 
     def __call__(self, environ, start_response):
-        if 'METHOD_OVERRIDE' in environ.get('QUERY_STRING', ''):
+        if '__METHOD__' in environ.get('QUERY_STRING', ''):
             args = url_decode(environ['QUERY_STRING'])
-            method = args.get('__METHOD_OVERRIDE__')
+            method = args.get('__METHOD__')
             if method:
                 method = method.encode('ascii', 'replace')
                 environ['REQUEST_METHOD'] = method

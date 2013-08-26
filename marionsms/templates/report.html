@@ -15,11 +15,33 @@ $(function(){
 <div class="wrapper">
   {{ navbar('report') }}
 
-  <h1>Reports</h1>
+  <h1>Responses</h1>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Phone Number</th>
+        <th>Message</th>
+        <th>Answered At</th>
+        <th>Response</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for response in responses %}
+      <tr>
+        <td>{{ response.phone_number }}</td>
+        <td>{{ response.message.name }}</td>
+        <td>{{ response.answered_at }}</td>
+        <td>{{ response.text }}</td>
+      </tr>      
+      {% endfor %}
+    </tbody>
+  </table>
+
   
   <p class="lead">Generate and download a report of all data collected in a given time-period.</p>
   
-  <form action="/report" class="form-inline">
+  <form action="/report.csv" class="form-inline" method="GET">
     <div class="form-group">
       <label>Start Date</label>
       <input type="date" class="form-control" name="start-date">

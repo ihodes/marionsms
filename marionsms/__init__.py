@@ -12,9 +12,10 @@ from .middleware import MethodRewriteMiddleware
 # Blueprints
 from .frontend import frontend
 from .api import api
+from .sms import sms
 
 
-BLUEPRINTS = (frontend, api)
+BLUEPRINTS = (frontend, api, sms)
 
 
 def create_app():

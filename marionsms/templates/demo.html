@@ -1,0 +1,13 @@
+{% extends "layouts/base.html" %}
+{% block head %}
+{% endblock %}
+
+{% block body %}
+<div class="wrapper">
+  {{ navbar('demo') }}  
+  {{ flash() }}
+  <form method="POST">
+    <button>Send Texts</button>
+  </form>
+</div>
+{% endblock %}
