@@ -3,12 +3,12 @@ import string
 from collections import defaultdict
 from flask import (Blueprint, render_template, current_app, request, json,
                    flash, url_for, redirect, session, abort, make_response)
-
+from flask.ext.login import current_user, login_user, logout_user, login_required
 
 from ..notifier import send_nows_smss
 import marionsms.scheduler as s
 from ..extensions import db
-from ..models import Message, ScheduledMessage, Response
+from ..models import Message, ScheduledMessage, Response, User
 
 
 
@@ -22,26 +22,37 @@ frontend = Blueprint('frontend', __name__)
 @frontend.route('/')
 def landing_page():
     return render_template('landing.html')
-
-
-# require login
-@frontend.route('/home')
-def home():
-    return render_template('home.html')
     
 
 @frontend.route('/login', methods=['POST'])
 def login():
-    current_app.logger.info('Logging in...')
-    # TK TODO
-    return redirect(url_for('.home'))
+    username = request.values.get('username')
+    password = request.values.get('password')
+    user = User.query.filter_by(username=username).first()
+    current_app.logger.info('LOGIN {} trying to log in...'.format(username))
+    if user and user.verify_password(password):
+        current_app.logger.info('LOGIN {} logged in successfully'.format(username))
+        login_user(user)
+        flash("Welcome back, {}!".format(username), 'success')
+        return redirect(request.args.get("next") or url_for(".home"))
+    current_app.logger.info('LOGIN {} failed at logging in.'.format(username))
+    flash("Incorrect username or password; please try again.".format(username), 'warning')
+    return redirect(url_for('.landing_page'))
 
 
 @frontend.route('/logout', methods=['POST', 'GET'])
+@login_required
 def logout():
-    current_app.logger.info('Logging out...')
-    # TK TODO
+    current_app.logger.info('LOGOUT logged out {}.'.format(current_user.username))
+    logout_user()
+    flash("You've been logged out.")
     return redirect(url_for('.landing_page'))
+
+
+@frontend.route('/home')
+@login_required
+def home():
+    return render_template('home.html')
 
 
 def _get_schedule():
@@ -65,8 +76,8 @@ def _process_csv(csv_file):
     return msgs
 
 
-# require login
 @frontend.route('/schedule', methods=['POST', 'GET', 'DELETE'])
+@login_required
 def schedule():
     if request.method == 'POST':
         csv = request.files.get('schedule-file')
@@ -114,7 +125,8 @@ def responses_to_csv(responses):
 
 
 @frontend.route('/report.csv')
-def generate_large_csv():
+@login_required
+def generate_report_csv():
     start_date = request.values.get('start-date')
     end_date = request.values.get('end-date')
     responses = Response.query.filter(Response.answered_at.between(start_date, end_date)).all()
@@ -125,16 +137,16 @@ def generate_large_csv():
     return response
 
 
-# require login
 @frontend.route('/report', methods=['GET', 'POST'])
+@login_required
 def report():
     responses = Response.query.order_by(Response.answered_at.desc()).all()
     return render_template('report.html', 
                            responses=responses)
 
 
-# require login
 @frontend.route('/messages', methods=['GET', 'POST', 'DELETE'])
+@login_required
 def messages():
     if request.method == 'POST':
         m = Message(request.form['name'], request.form['text'])
@@ -154,8 +166,8 @@ def messages():
     return render_template('messages.html', messages=Message.query.filter_by(hidden=False).all())
 
 
-# require login
 @frontend.route('/demo', methods=['GET', 'POST'])
+@login_required
 def demo():
     if request.method == 'POST':
         current_app.logger.info("SENDING TEXTS... (from /demo)")

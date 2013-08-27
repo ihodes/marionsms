@@ -10,14 +10,15 @@
 <div class="wrapper">
   <div>
     <h1>Sign in to Marion SMS</h1>
+    {{ flash() }}
     <form action="/login" method="POST" role="form"
           class="form-inline" id="login-form">
       <div class="form-group">
-        <input type="text" class="form-control input-sm"
+        <input type="text" class="form-control input-sm" name="username"
                placeholder="User Name">
       </div>
       <div class="form-group">
-        <input type="password" class="form-control input-sm" 
+        <input type="password" class="form-control input-sm" name="password"
                placeholder="Password">
       </div>
       

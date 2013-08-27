@@ -6,8 +6,10 @@ import pytz
 from datetime import datetime
 
 
-from .extensions import db, lm
+from .extensions import db, lm, bcrypt
 from .middleware import MethodRewriteMiddleware
+
+from .models import User
 
 # Blueprints
 from .frontend import frontend
@@ -52,10 +54,11 @@ def _initialize_hooks(app):
 def _initialize_extensions(app):
     db.init_app(app)
     lm.init_app(app)
+    bcrypt.init_app(app)
 
-    # @lm.user_loader
-    # def load_user(user_id):
-    #     return User.query.get(int(user_id))
+    @lm.user_loader
+    def load_user(user_id):
+        return User.query.get(user_id)
 
     # @lm.token_loader
     # def load_token(token):

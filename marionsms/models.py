@@ -2,8 +2,9 @@
 import string
 import datetime
 
-from .extensions import db
+from flask.ext.login import UserMixin
 
+from .extensions import db, lm, bcrypt
 
 
 class Message(db.Model):
@@ -102,3 +103,22 @@ class Response(db.Model):
 
     def __repr__(self):
         return "Response({}, {})".format(phone_number, text)
+
+
+
+class User(db.Model, UserMixin):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, db.Sequence('user_id_seq'), primary_key=True)
+
+    username = db.Column('username', db.Text)
+    password = db.Column('password', db.Text)
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = bcrypt.generate_password_hash(password)
+
+    def verify_password(self, password_candidate):
+        return bcrypt.check_password_hash(self.password, password_candidate)
+
+    def __repr__(self):
+        return "User({})".format(self.username)
