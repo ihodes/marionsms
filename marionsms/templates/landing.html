@@ -1,32 +1,56 @@
 {% extends "layouts/base.html" %}
 {% block head %}
 <style>
-  .wrapper { margin: 0 auto; max-width: 400px; }
-  form { margin: 23px 0; }
+  #wrapper {
+    margin: 0 auto -80px;
+    width: 800px; 
+  }
+
+  .jumbotron { margin-top: 35px; background: white; }
+
+  #berry { width: 135px; display: inline-block; margin-top: -23px; }
+
 </style>
 {% endblock %}
 
 {% block body %}
-<div class="wrapper">
-  <div>
-    <h1>Sign in to Marion SMS</h1>
-    {{ flash() }}
-    <form action="/login" method="POST" role="form"
-          class="form-inline" id="login-form">
-      <div class="form-group">
-        <input type="text" class="form-control input-sm" name="username"
-               placeholder="User Name">
-      </div>
-      <div class="form-group">
-        <input type="password" class="form-control input-sm" name="password"
-               placeholder="Password">
-      </div>
-      
-      <button type="submit" class="btn btn-default btn-sm">Sign in</button>
+
+<div id="wrapper">
+  <div class="container">
+    <div class="jumbotron">
+      <img id="berry" src="/static/img/marionberry.png"><h1 style="display:inline;">Marion Health </h1>
+      <br><br>
+      <h2>Communicate with your patients via SMS.</h2>
+      <p>
+        We do the hard work for you: just upload their phone numbers,
+        the questions or reminders to send, and the schedule you want to
+        send them out on, and we'll handle the rest.
+      </p>
       <br>
-      <small>To request more information, please email <a href="mailto:isaac@getmarion.com">isaac@getmarion.com</a>.</small>
-    </form>
+      <p>
+        <a class="btn btn-lg btn-primary" href="mailto:isaac@getmarion.com" target="_blank">Request Information</a>
+        <small>We're rolling out our pilot, September&mdash;November 2013!</small>
+      </p>
+    </div>  
+  </div>
+
+  <div class="container">
+    <div class="jumbotron">
+      {{ flash() }}
+      <form action="/login" method="POST" role="form"
+            class="form-inline" id="login-form">
+        <div class="form-group">
+          <input type="text" class="form-control input-sm" name="username"
+                 placeholder="Name">
+        </div>
+        <div class="form-group">
+          <input type="password" class="form-control input-sm" name="password"
+                 placeholder="Password">
+        </div>
+        
+        <button type="submit" class="btn btn-default btn-sm">Login</button>
+      </form>
+    </div>
   </div>
 </div>
-
 {% endblock %}
