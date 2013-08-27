@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
+import string
 from collections import defaultdict
-import random
 from flask import (Blueprint, render_template, current_app, request, json,
                    flash, url_for, redirect, session, abort, make_response)
 
 
 from ..notifier import send_nows_smss
-
 import marionsms.scheduler as s
 from ..extensions import db
-
 from ..models import Message, ScheduledMessage, Response
 
 
@@ -49,33 +47,55 @@ def logout():
 def _get_schedule():
     schedule = defaultdict(list)
     for scheduled_message in ScheduledMessage.query.all():
-        current_app.logger.info(scheduled_message)
-        if not scheduled_message.message.hidden or False:
+        if scheduled_message.active and not scheduled_message.message.hidden:
             schedule[scheduled_message.phone_number].append(scheduled_message)
     return schedule
+
+
+def _process_csv(csv_file):
+    msgs = []
+    for line in csv_file:
+        vals = line.split(',')
+        vals = [string.strip(v) for v in vals]
+        sm = s.schedule(*vals)
+        msgs.append(sm)
+        db.session.add(sm)
+        current_app.logger.info("Scheduled: "+str(sm))
+    db.session.commit()
+    return msgs
 
 
 # require login
 @frontend.route('/schedule', methods=['POST', 'GET', 'DELETE'])
 def schedule():
     if request.method == 'POST':
-        sm = s.schedule(request.form.get('phone-number'), request.form.get('message-id'),
-                        request.form.get('frequency'), request.form.get('time'))
-        flash('Scheduled message \"{}\"  for {}'.format(sm.message.name, sm.phone_number),
-              'info')
+        csv = request.files.get('schedule-file')
+        if csv:
+            msgs = _process_csv(csv)
+            flash('Scheduled {} messages.'.format(len(msgs)), 'info')
+        else:
+            sm = s.schedule(request.form.get('phone-number'),
+                            request.form.get('message-id'),
+                            request.form.get('frequency'),
+                            request.form.get('time'))
+            flash('Scheduled message \"{}\"  for {}'.format(sm.message.name,
+                                                            sm.phone_number)
+                  , 'info')
         return redirect(url_for('.schedule'))
     elif request.method == 'DELETE':
         smid = request.values.get('scheduled_message_id')
         sm = ScheduledMessage.query.get(smid)
         name = sm.message.name
         phone_number = sm.phone_number
-        db.session.delete(sm)
+        sm.active = False
+        db.session.add(sm)
         db.session.commit()
         flash('Removed message \"{}\"  scheduled for {}'.format(name, phone_number),
               'warning')
         return redirect(url_for('.schedule'))
-    return render_template('schedule.html', schedule=_get_schedule(),
-                           r=random.random, DAYS_OF_WEEK=DAYS_OF_WEEK)
+    return render_template('schedule.html',
+                           schedule=_get_schedule(), 
+                           DAYS_OF_WEEK=DAYS_OF_WEEK)
 
 
 def responses_to_csv(responses):

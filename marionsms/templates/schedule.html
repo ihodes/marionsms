@@ -2,10 +2,6 @@
 <td>
   <abbr title="{{ scheduled_message.message.text }}">{{ scheduled_message.message.name }}</a>
 </td>
-<td>
-  {% set p = r()%}
-  <span class="pie">{{ p }}, {{ 1 - p }}</span>
-</td>
 <td>{{ scheduled_message.schedule_as_string }}</td>
 <td class="actions">
   <form class="inline-form" 
@@ -40,7 +36,6 @@ $(function(){
       <tr>
         <th>Phone Number</th>
         <th>Question</th>
-        <th><abbr title="Response Rate">RR</abbrev></th>
         <th>Time</th>
         <th></th>
       </tr>
@@ -65,12 +60,14 @@ $(function(){
 
   <hr/>
   
-  <form action="/schedule" method="POST">
+  <form action="/schedule" method="POST" enctype="multipart/form-data">
     <legend>Add to the Schedule</legend>
-    <!-- <div class="form-group"> -->
-    <!--   <input type="file" name="schedule-file"> -->
-    <!--   <p class="help-block">Upload a <abbr title="comma-separated values">CSV</abbr> file in the <a href="/help#csv-fmt">proper format</a>. Or, enter a new record below:</p> -->
-    <!-- </div> -->
+
+    <div class="form-group">
+      <input type="file" name="schedule-file">
+      <p class="help-block">Upload a <abbr title="comma-separated values">CSV</abbr> file in the <a href="/help#csv-fmt">proper format</a>. Or, enter a new record below:</p>
+    </div>
+
     <div class="form-group">
       <input type="text" name="phone-number" placeholder="Phone Number">
       <input type="text" name="message-id" placeholder="Message/Question ID">
