@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import os
+import logging
 from flask import Flask, session, render_template, current_app
 from flask.ext.login import current_user
 from werkzeug import url_decode
@@ -78,7 +80,6 @@ def _initialize_error_handlers(app):
 
 def _initialize_logging(app):
     if os.environ.get('ENVIRONMENT') == 'PRODUCTION':
-        import logging
         stream_handler = logging.StreamHandler()
         app.logger.addHandler(stream_handler)
         app.logger.setLevel(logging.INFO)
