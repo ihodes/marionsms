@@ -26,8 +26,5 @@ def receive():
             db.session.add(response)
             db.session.commit()
             break
-    
-    
-    
 
     return "recieved"

@@ -90,7 +90,7 @@ class Response(db.Model):
     id = db.Column(db.Integer, db.Sequence('response_id_seq'), primary_key=True)
 
     phone_number = db.Column('phone_number', db.String(255))
-    answered_at = db.Column('answered_at', db.DateTime, default=datetime.datetime.now())
+    answered_at = db.Column('answered_at', db.DateTime, default=datetime.datetime.now)
     text = db.Column('name', db.String(160))
     message_id = db.Column('message_id', db.Integer, db.ForeignKey('messages.id'))
     scheduled_message_id = db.Column('scheduled_message_id', db.Integer, db.ForeignKey('scheduled_messages.id'))
