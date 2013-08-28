@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import os
 import sys
 sys.path.append('../marionsms')
 
@@ -16,7 +16,7 @@ from marionsms.models import ScheduledMessage
 
 
 
-TWILIO_NUMBER = "+1 502-410-3124"
+TWILIO_NUMBER = os.environ.get('TWILIO_NUMBER')
 
 
 def to_utc(timestamp):
