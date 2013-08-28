@@ -77,7 +77,11 @@ def _initialize_error_handlers(app):
 
 
 def _initialize_logging(app):
-    pass
+    if os.environ.get('ENVIRONMENT') == 'PRODUCTION':
+        import logging
+        stream_handler = logging.StreamHandler()
+        app.logger.addHandler(stream_handler)
+        app.logger.setLevel(logging.INFO)
 
 
 def _initialize_template_filters(app):
