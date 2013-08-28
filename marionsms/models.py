@@ -102,7 +102,7 @@ class Response(db.Model):
         self.scheduled_message_id = scheduled_message_id
 
     def __repr__(self):
-        return "Response({}, {})".format(phone_number, text)
+        return "Response({}, {})".format(self.phone_number, self.text, self.answered_at)
 
 
 
