@@ -105,6 +105,7 @@ def schedule():
               'warning')
         return redirect(url_for('.schedule'))
     return render_template('schedule.html',
+                           messages=Message.query.all(),
                            schedule=_get_schedule(), 
                            DAYS_OF_WEEK=DAYS_OF_WEEK)
 

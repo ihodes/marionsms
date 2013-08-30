@@ -22,7 +22,7 @@
 
 <script>
 $(function(){
-    $("span.pie").peity("pie", {colours: ["#4d89f9", "#c6d9fd"]})
+  $("span.pie").peity("pie", {colours: ["#4d89f9", "#c6d9fd"]});
 });
 </script>
 {% endblock %}
@@ -70,7 +70,11 @@ $(function(){
 
     <div class="form-group">
       <input type="text" name="phone-number" placeholder="Phone Number">
-      <input type="text" name="message-id" placeholder="Message/Question ID">
+      <select name="message-id">
+        {% for msg in messages %}
+        <option value="{{ msg.id }}">{{ msg.name | capitalize }}</option>
+        {% endfor %}
+      </select>
       <select name="frequency">
         <option value="daily">Daily</option>
         {% for dow in DAYS_OF_WEEK %}
