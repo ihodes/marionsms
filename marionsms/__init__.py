@@ -47,10 +47,17 @@ def _initialize_middleware(app):
 
 
 def _initialize_hooks(app):
-    # @app.before_request
-    # def before_request():
-    #     pass
-    pass
+    from urlparse import urlparse, urlunparse
+
+    if app.config.get('ENVIRONMENT') == 'PRODUCTION':
+        @app.before_request
+        def redirect_nonwww():
+            """Redirect non-www requests to www."""
+            urlparts = urlparse(request.url)
+            if urlparts.netloc == 'getmarion.com':
+                urlparts_list = list(urlparts)
+                urlparts_list[1] = 'www.getmarion.com'
+                return redirect(urlunparse(urlparts_list), code=301)
 
 
 def _initialize_extensions(app):
