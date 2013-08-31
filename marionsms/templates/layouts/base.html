@@ -7,10 +7,11 @@
     <title>{% block title %}Marion SMS{% endblock %}</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc2/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/jquery-1.10.2.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/peity.min.js') }}"></script>
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc2/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}"
+          rel="stylesheet" type="text/css">
     <style>
       .wrapper { max-width: 800px; margin: 0 auto 11px auto; }
     </style>
