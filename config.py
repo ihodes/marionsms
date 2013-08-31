@@ -10,4 +10,7 @@ PORT=int(os.environ.get('PORT'))
 SQLALCHEMY_DATABASE_URI=os.environ.get('DATABASE_URL')
 DEBUG=os.environ.get('DEBUG', False)
 
+COOKIE_SECURE=True
+COOKIE_HTTPONLY=True
+
 del os
