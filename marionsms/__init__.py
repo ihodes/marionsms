@@ -48,11 +48,11 @@ def _initialize_middleware(app):
 
 def _initialize_hooks(app):
     from urlparse import urlparse, urlunparse
-
-    if app.config.get('ENVIRONMENT') == 'PRODUCTION':
-        @app.before_request
-        def redirect_nonwww():
-            """Redirect non-www requests to www."""
+    
+    @app.before_request
+    def redirect_nonwww():
+        """Redirect non-www requests to www."""
+        if app.config.get('ENVIRONMENT') == 'PRODUCTION':
             urlparts = urlparse(request.url)
             if urlparts.netloc == 'getmarion.com':
                 urlparts_list = list(urlparts)
