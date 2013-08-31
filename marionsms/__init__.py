@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import logging
-from flask import Flask, session, render_template, current_app
+from flask import Flask, session, render_template, current_app, request
 from flask.ext.login import current_user
 from werkzeug import url_decode
 import pytz
