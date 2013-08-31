@@ -49,16 +49,17 @@ def _initialize_middleware(app):
 def _initialize_hooks(app):
     from urlparse import urlparse, urlunparse
 
-    @app.before_request
-    def redirect_nonhttps():
-        """Redirect non-www requests to www."""
-        if app.config.get('ENVIRONMENT') == 'PRODUCTION':
-            urlparts = urlparse(request.url)
-            if urlparts.scheme == 'http':
-                urlparts_list = list(urlparts)
-                urlparts_list[0] = 'https'
-                urlparts_list[1] = 'www.getmarion.com'
-                return redirect(urlunparse(urlparts_list), code=301)
+    # @app.before_request
+    # def redirect_nonhttps():
+    #     """Redirect non-www requests to www."""
+    #     if app.config.get('ENVIRONMENT') == 'PRODUCTION':
+    #         urlparts = urlparse(request.url)
+    #         if urlparts.scheme == 'http':
+    #             urlparts_list = list(urlparts)
+    #             urlparts_list[0] = 'https'
+    #             urlparts_list[1] = 'www.getmarion.com'
+    #             return redirect(urlunparse(urlparts_list), code=301)
+    pass
 
 
 def _initialize_extensions(app):
