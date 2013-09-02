@@ -16,7 +16,7 @@ $(function(){
 <div class="wrapper">
   {{ navbar("home") }}
 
-<h1>Marion SMS</h1>
+<h1>{{ current_user.organization.name }}</h1>
 {{ flash() }}
 <p>
   Today, we've introduced a feature which will blow your minds. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
@@ -26,8 +26,8 @@ $(function(){
 </p>
 
 <div class="well">
-  <p class="lead">Quick Stats for <b>Long Term Care, Inc.</b></p>
-  <small>January 17th, 2014</small>
+  <p class="lead">Quick Stats for <b>{{ current_user.organization.name }}</b></p>
+  <small>...</small>
   <p>...</p>
 </div>
 

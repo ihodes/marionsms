@@ -56,9 +56,10 @@ def home():
 
 
 def _get_schedule():
+    organization = current_user.organization
     schedule = defaultdict(list)
-    for scheduled_message in ScheduledMessage.query.all():
-        if scheduled_message.active and not scheduled_message.message.hidden:
+    for scheduled_message in ScheduledMessage.query.filter_by(organization=organization, active=True).all():
+        if not scheduled_message.message.hidden:
             schedule[scheduled_message.phone_number].append(scheduled_message)
     return schedule
 
@@ -68,6 +69,7 @@ def _process_csv(csv_file):
     for line in csv_file:
         vals = line.split(',')
         vals = [string.strip(v) for v in vals]
+        vals.append(current_user.organizaton_id)
         sm = s.schedule(*vals)
         msgs.append(sm)
         db.session.add(sm)
@@ -88,7 +90,8 @@ def schedule():
             sm = s.schedule(request.form.get('phone-number'),
                             request.form.get('message-id'),
                             request.form.get('frequency'),
-                            request.form.get('time'))
+                            request.form.get('time'),
+                            current_user.organization_id)
             flash('Scheduled message \"{}\"  for {}'.format(sm.message.name,
                                                             sm.phone_number)
                   , 'info')
@@ -104,8 +107,9 @@ def schedule():
         flash('Removed message \"{}\"  scheduled for {}'.format(name, phone_number),
               'warning')
         return redirect(url_for('.schedule'))
+    organization = current_user.organization
     return render_template('schedule.html',
-                           messages=Message.query.filter_by(hidden=False).all(),
+                           messages=Message.query.filter_by(hidden=False, organization=organization).all(),
                            schedule=_get_schedule(), 
                            DAYS_OF_WEEK=DAYS_OF_WEEK)
 
@@ -130,7 +134,8 @@ def responses_to_csv(responses):
 def generate_report_csv():
     start_date = request.values.get('start-date')
     end_date = request.values.get('end-date')
-    responses = Response.query.filter(Response.answered_at.between(start_date, end_date)).all()
+    organization = current_user.organization
+    responses = Response.query.filter_by(organization=organization).filter(Response.answered_at.between(start_date, end_date)).all()
 
     csv = responses_to_csv(responses)
     response = make_response(csv)
@@ -141,7 +146,7 @@ def generate_report_csv():
 @frontend.route('/report', methods=['GET', 'POST'])
 @login_required
 def report():
-    responses = Response.query.order_by(Response.answered_at.desc()).all()
+    responses = Response.query.filter_by(organization=current_user.organization).order_by(Response.answered_at.desc()).all()
     return render_template('report.html', 
                            responses=responses)
 
@@ -150,7 +155,9 @@ def report():
 @login_required
 def messages():
     if request.method == 'POST':
-        m = Message(request.form['name'], request.form['text'])
+        m = Message(request.form['name'],
+                    request.form['text'],
+                    current_user.organization_id)
         db.session.add(m)
         db.session.commit()
         flash('Created message \"{}\"'.format(m.name), 'info')
@@ -164,7 +171,8 @@ def messages():
         db.session.commit()
         flash('Removed message \"{}\"'.format(name), 'warning')
         return redirect(url_for('.messages'))
-    return render_template('messages.html', messages=Message.query.filter_by(hidden=False).all())
+    messages = current_user.organization.messages.filter_by(hidden=False).all()
+    return render_template('messages.html', messages=messages)
 
 
 @frontend.route('/demo', methods=['GET', 'POST'])

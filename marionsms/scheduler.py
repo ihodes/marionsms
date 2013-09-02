@@ -8,8 +8,8 @@ from .models import Message, ScheduledMessage
 
 
 
-def schedule(phone_number, message_id, frequency, time):
-    sm = ScheduledMessage(phone_number, message_id, time, frequency)
+def schedule(phone_number, message_id, frequency, time, organization_id):
+    sm = ScheduledMessage(phone_number, message_id, time, frequency, organization_id)
     db.session.add(sm)
     db.session.commit()
     return sm

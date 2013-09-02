@@ -7,6 +7,7 @@ from flask.ext.login import UserMixin
 from .extensions import db, lm, bcrypt
 
 
+
 class Message(db.Model):
     __tablename__ = 'messages'
     id = db.Column(db.Integer, db.Sequence('message_id_seq'), primary_key=True)
@@ -20,9 +21,13 @@ class Message(db.Model):
 
     hidden = db.Column('hidden', db.Boolean, default=False)
 
-    def __init__(self, name=None, text=None):
+    organization_id = db.Column('organization_id', db.Integer,
+                                db.ForeignKey('organizations.id'))
+
+    def __init__(self, name, text, organization_id):
         self.name = name
         self.text = text
+        self.organization_id = organization_id
 
     def __repr__(self):
         return "Message({}, {})".format(self.name, self.text)
@@ -47,7 +52,12 @@ class ScheduledMessage(db.Model):
     # True if the message should still be sent out, False if it's been canceled.
     active = db.Column('active', db.Boolean, default=True)
 
-    def __init__(self, phone_number, message_id, time, frequency):
+
+    organization_id = db.Column('organization_id', db.Integer,
+                                db.ForeignKey('organizations.id'))
+
+    def __init__(self, phone_number, message_id, time, frequency, organization_id):
+        self.organization_id = organization_id
         self.phone_number = phone_number
         self.message_id = message_id
         self.time = time
@@ -81,7 +91,7 @@ class ScheduledMessage(db.Model):
         if self.daily:
             return "Daily at " + self.time_as_localized_string
         else:
-            return (string.capitalize(self.day_of_week) + 
+            return (string.capitalize(self.day_of_week) +
                     " at " + self.time_as_localized_string)
 
 
@@ -92,10 +102,15 @@ class Response(db.Model):
     phone_number = db.Column('phone_number', db.String(255))
     answered_at = db.Column('answered_at', db.DateTime, default=datetime.datetime.now)
     text = db.Column('name', db.String(160))
+
     message_id = db.Column('message_id', db.Integer, db.ForeignKey('messages.id'))
     scheduled_message_id = db.Column('scheduled_message_id', db.Integer, db.ForeignKey('scheduled_messages.id'))
+    organization_id = db.Column('organization_id', db.Integer,
+                                db.ForeignKey('organizations.id'))
 
-    def __init__(self, phone_number, text, message_id, scheduled_message_id):
+    def __init__(self, phone_number, text, message_id,
+                 scheduled_message_id, organization_id):
+        self.organization_id = organization_id
         self.phone_number = phone_number
         self.text = text
         self.message_id = message_id
@@ -105,15 +120,41 @@ class Response(db.Model):
         return "Response({}, {})".format(self.phone_number, self.text, self.answered_at)
 
 
+#########################
+##   User/Org system   ##
+#########################
+
+class Organization(db.Model):
+    __tablename__ = 'organizations'
+    id = db.Column(db.Integer, db.Sequence('organization_id_seq'), primary_key=True)
+    name = db.Column('name', db.Text, unique=True)
+
+    # Associations
+    users = db.relationship('User',
+                            backref='organization', lazy='dynamic')
+    messages = db.relationship('Message',
+                               backref='organization', lazy='dynamic')
+    scheduled_messages = db.relationship('ScheduledMessage', 
+                                         backref='organization', lazy='dynamic')
+    responses = db.relationship('Response', backref='organization')
+
+    def __init__(self, name):
+        self.name = name
+
+
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, db.Sequence('user_id_seq'), primary_key=True)
 
-    username = db.Column('username', db.Text)
+    username = db.Column('username', db.Text, unique=True)
     password = db.Column('password', db.Text)
 
-    def __init__(self, username, password):
+    organization_id = db.Column('organization_id', db.Integer,
+                                db.ForeignKey('organizations.id'))
+    
+    def __init__(self, organization, username, password):
+        self.organization_id = organization_id
         self.username = username
         self.password = bcrypt.generate_password_hash(password)
 
@@ -122,3 +163,4 @@ class User(db.Model, UserMixin):
 
     def __repr__(self):
         return "User({})".format(self.username)
+
