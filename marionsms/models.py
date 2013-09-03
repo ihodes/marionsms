@@ -158,7 +158,7 @@ class User(db.Model, UserMixin):
     organization_id = db.Column('organization_id', db.Integer,
                                 db.ForeignKey('organizations.id'))
     
-    def __init__(self, organization, username, password):
+    def __init__(self, username, password, organization_id):
         self.organization_id = organization_id
         self.username = username
         self.password = bcrypt.generate_password_hash(password)
