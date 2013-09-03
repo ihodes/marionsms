@@ -22,7 +22,7 @@ def receive():
 
     for sm in ordered_sms:
         if sm.last_sent: # make sure it was sent
-            response = Response(from_, response_text, sm.message_id, sm.id)
+            response = Response(from_, response_text, sm.message_id, sm.id, sm.organization_id)
             current_app.logger.info('Received: {}'.format(response))
             db.session.add(response)
             db.session.commit()

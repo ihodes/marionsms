@@ -102,3 +102,16 @@ def _initialize_template_filters(app):
         ds = dt.strftime("%I:%M %p")
         return ds.lstrip('0')
 
+    @app.template_filter()
+    def format_phone_number(pn):
+        fpn = ''
+        fpn += pn[0:2]
+        fpn += ' ('
+        fpn += pn[2:5]
+        fpn += ') '
+        fpn += pn[5:8]
+        fpn += '-'
+        fpn += pn[8:12]
+        
+        return fpn
+

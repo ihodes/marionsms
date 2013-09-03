@@ -4,10 +4,20 @@
 </td>
 <td>{{ scheduled_message.schedule_as_string }}</td>
 <td class="actions">
-  <form class="inline-form" 
+  <form class="inline-form" style="display:inline;"
         action="/schedule?__METHOD__=DELETE&scheduled_message_id={{scheduled_message.id}}" 
         method="POST">
-    <button class="btn btn-danger btn-xs">Delete</button>
+    <button class="btn btn-danger btn-xs">
+      <span class="glyphicon glyphicon-remove"></span>
+    </button>
+  </form>
+  <form class="inline-form" style="display:inline;"
+        action="/send" 
+        method="POST">
+    <input type="hidden" value="{{scheduled_message.id}}" name="scheduled_message_id">
+    <button class="btn btn-success btn-xs">
+      <span class="glyphicon glyphicon-send"></span>&nbsp;
+    </button>
   </form>
 </td>
 {%- endmacro %}
@@ -16,13 +26,24 @@
 {% block head %}
 <style>
   h1 { text-align: center; }
-  .actions { opacity: 0.3; }
+  /*.actions { opacity: 0; }*/
   tr:hover .actions { opacity: 1; }
 </style>
 
 <script>
 $(function(){
   $("span.pie").peity("pie", {colours: ["#4d89f9", "#c6d9fd"]});
+
+  $("input[name=send-once]").change(function()
+  {
+    if($("select[name=frequency]").prop("disabled")){
+      $("select[name=frequency]").prop("disabled", false);
+      $("select[name=frequency]").css("opacity", 1);
+    } else {
+      $("select[name=frequency]").prop("disabled", true);
+      $("select[name=frequency]").css("opacity", 0.3);
+    }
+  });
 });
 </script>
 {% endblock %}
@@ -45,7 +66,7 @@ $(function(){
         {% set scheduled_messages = schedule[phone_number] %}
       <tr>
         <td rowspan={{ scheduled_messages | length}}>
-          <a href="tel:+1{{phone_number}}">{{ phone_number }}</a>
+          <a href="tel:+1{{phone_number}}">{{ phone_number | format_phone_number }}</a>
         </td>
         {{ scheduled_question(scheduled_messages[0]) }}        
       </tr>
@@ -62,48 +83,59 @@ $(function(){
   
   <form action="/schedule" method="POST" enctype="multipart/form-data">
     <legend>Add to the Schedule</legend>
+    <div class="row">
+      <div class="form-group col-lg-6">
+        <label>Phone Number (in format: +1xxxyyyzzzz)</label>
+        <input class="form-control" type="text" 
+               name="phone-number" placeholder="Phone Number">
+      </div>
+      <div class="form-group col-lg-6">
+        <label>Which message should be sent?</label>
+        <select class="form-control" name="message-id">
+          {% for msg in messages %}
+          <option value="{{ msg.id }}">{{ msg.name | capitalize }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
 
-    <div class="form-group">
-      <label>Phone Number (+1xxxyyyzzzz)</label>
-      <input class="form-control" type="text" name="phone-number" placeholder="Phone Number">
-    </div>
-    <div class="form-group">
-      <label>Which message should be sent?</label>
-      <select class="form-control" name="message-id">
-        {% for msg in messages %}
-        <option value="{{ msg.id }}">{{ msg.name | capitalize }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Frequency</label>
-      <select class="form-control" name="frequency">
-        <option value="daily">Daily</option>
-        {% for dow in DAYS_OF_WEEK %}
-        <option value="{{ dow }}">{{ dow | capitalize }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Time</label>
-      <input class="form-control" type="time" name="time" placeholder="Scheduled Time">
-      <p class="help-block">Be sure to enter the time in the <a href="/help#time-fmt">proper format</a>.</p>
+    <div class="row">
+      <div class="form-group col-lg-4">
+        <label>Frequency</label>
+        <select class="form-control" name="frequency">
+          <option value="daily">Daily</option>
+          {% for dow in DAYS_OF_WEEK %}
+          <option value="{{ dow }}">{{ dow | capitalize }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group col-lg-4">
+        <label>Time</label>
+        <input class="form-control" type="time" 
+               name="time" placeholder="Scheduled Time">
+      </div>
+      <div class="form-group col-lg-2">
+        <label>One Time</label>
+        <input class="form-control" type="checkbox" 
+               name="send-once">
+      </div>
     </div>
 
     <div class="form-group">
       <button class="btn btn-info">Add to Schedule</button>
     </div>
     
+    <br><br>
+    <div class="form-group">
+      <legend>Or upload a spreadsheet: </legend>
+      <input type="file" name="schedule-file">
+      <p class="help-block">Upload a <abbr title="comma-separated values">CSV</abbr> file in the <a href="/help#csv-fmt">proper format</a>.</p>
+    </div>
 
-  <div class="form-group">
-    <legend>Or upload a spreadsheet: </legend>
-    <input type="file" name="schedule-file">
-    <p class="help-block">Upload a <abbr title="comma-separated values">CSV</abbr> file in the <a href="/help#csv-fmt">proper format</a>.</p>
-  </div>
-
-  <div class="form-group">
-    <button class="btn btn-info">Add to Schedule</button>
-  </div>
+    <div class="form-group">
+      <button class="btn btn-info">Add to Schedule</button>
+    </div>
+    <br>
   </form>
 </div>
 {% endblock %}

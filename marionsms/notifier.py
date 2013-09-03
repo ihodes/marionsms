@@ -29,12 +29,15 @@ def to_utc(timestamp):
 def send_message(scheduled_message, client=None):
     if client is None:
         client = tr.TwilioRestClient()
+    mark_last_sent(scheduled_message)
     client.sms.messages.create(to=scheduled_message.phone_number,
                                from_=TWILIO_NUMBER,
                                body=scheduled_message.message.text)
 
 
 def mark_last_sent(scheduled_message):
+    if scheduled_message.send_once:
+        scheduled_message.active = False
     scheduled_message.last_sent = datetime.datetime.now()
     db.session.add(scheduled_message)
     db.session.commit()
@@ -53,6 +56,5 @@ def send_nows_smss():
         if message.daily or message.day_of_week == string.lower(now.strftime('%A')):
             current_app.logger.info("Sending message {} at {}".format(message, now))
             send_message(message, client=client)
-            mark_last_sent(message)
             sleep(1) # TK TODO hack hacky rate-limiting
             

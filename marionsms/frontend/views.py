@@ -5,7 +5,7 @@ from flask import (Blueprint, render_template, current_app, request, json,
                    flash, url_for, redirect, session, abort, make_response)
 from flask.ext.login import current_user, login_user, logout_user, login_required
 
-from ..notifier import send_nows_smss
+from ..notifier import send_nows_smss, send_message, mark_last_sent
 import marionsms.scheduler as s
 from ..extensions import db
 from ..models import Message, ScheduledMessage, Response, User
@@ -87,9 +87,12 @@ def schedule():
             msgs = _process_csv(csv)
             flash('Scheduled {} messages.'.format(len(msgs)), 'info')
         else:
+            frequency = request.form.get('frequency')
+            if request.form.get('send-once') is not None:
+                frequency = 'send-once'
             sm = s.schedule(request.form.get('phone-number'),
                             request.form.get('message-id'),
-                            request.form.get('frequency'),
+                            frequency,
                             request.form.get('time'),
                             current_user.organization_id)
             flash('Scheduled message \"{}\"  for {}'.format(sm.message.name,
@@ -182,3 +185,13 @@ def demo():
         current_app.logger.info("SENDING TEXTS... (from /demo)")
         send_nows_smss()
     return render_template('demo.html')
+
+
+@frontend.route('/send', methods=['POST'])
+@login_required
+def demo():
+    scheduled_message = ScheduledMessage.query.get(request.form.get('scheduled_message_id'))
+    current_app.logger.info("SENDING TEXT... (from /send) {}".format(scheduled_message))
+    send_message(scheduled_message)
+    return redirect(url_for('.schedule'))
+
