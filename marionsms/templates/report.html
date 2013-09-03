@@ -19,17 +19,17 @@ $(function(){
     <thead>
       <tr>
         <th>Phone Number</th>
+        <th>Answered At [GMT]</th>
         <th>Message</th>
-        <th>Answered At</th>
         <th>Response</th>
       </tr>
     </thead>
     <tbody>
       {% for response in responses %}
       <tr>
-        <td>{{ response.phone_number }}</td>
-        <td>{{ response.message.name }}</td>
+        <td>{{ response.phone_number | format_phone_number }}</td>
         <td>{{ response.answered_at }}</td>
+        <td>{{ response.message.name }}</td>
         <td>{{ response.text }}</td>
       </tr>      
       {% endfor %}

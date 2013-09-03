@@ -18,15 +18,14 @@ $(function(){
   <table class="table">
     <thead>
       <tr>
-        <th>Message ID</th>
         <th>Name</th>
         <th>Message</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
       <tr>
       {% for message in messages %}
-        <td>{{ message.id }}</td>
         <td>{{ message.name }}</td>
         <td>{{ message.text }}</td>
         <td>
