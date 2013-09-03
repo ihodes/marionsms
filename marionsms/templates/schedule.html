@@ -30,6 +30,8 @@
   tr:hover .actions { opacity: 1; }
 </style>
 
+<script src="{{ url_for('static', filename='js/phone_val.js') }}"></script>
+
 <script>
 $(function(){
   $("span.pie").peity("pie", {colours: ["#4d89f9", "#c6d9fd"]});
@@ -44,6 +46,8 @@ $(function(){
       $("select[name=frequency]").css("opacity", 0.3);
     }
   });
+
+  $("input.phone-number").phone_numberify("input#validated-number", "+1");
 });
 </script>
 {% endblock %}
@@ -56,8 +60,8 @@ $(function(){
     <thead>
       <tr>
         <th>Phone Number</th>
-        <th>Question</th>
-        <th>Time</th>
+        <th>Message</th>
+        <th>Time [GMT]</th>
         <th></th>
       </tr>
     </thead>
@@ -85,9 +89,9 @@ $(function(){
     <legend>Add to the Schedule</legend>
     <div class="row">
       <div class="form-group col-lg-6">
-        <label>Phone Number (in format: +1xxxyyyzzzz)</label>
-        <input class="form-control" type="text" 
-               name="phone-number" placeholder="Phone Number">
+        <label>Phone Number (e.g. (502) 555-0100)</label>
+        <input class="form-control phone-number" type="tel" placeholder="Phone Number">
+        <input type="hidden" name="phone-number" id="validated-number">
       </div>
       <div class="form-group col-lg-6">
         <label>Which message should be sent?</label>
