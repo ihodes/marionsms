@@ -141,7 +141,7 @@ class Organization(db.Model):
                                backref='organization', lazy='dynamic')
     scheduled_messages = db.relationship('ScheduledMessage', 
                                          backref='organization', lazy='dynamic')
-    responses = db.relationship('Response', backref='organization')
+    responses = db.relationship('Response', backref='organization', lazy='dynamic')
 
     def __init__(self, name):
         self.name = name

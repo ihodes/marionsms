@@ -19,16 +19,21 @@ $(function(){
 <h1>{{ current_user.organization.name }}</h1>
 {{ flash() }}
 <p>
-  Today, we've introduced a feature which will blow your minds. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+  Welcome back to MarionSMS. Here you can get a quick overview of your company's activity. 
 </p>
+
 <p>
-  Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+  Feel free to email or call me anytime with questions or suggestions for new features. <br><a href="mailto:isaac@getmarion.com">isaac@getmarion.com</a> or <a href="tel:+15024723603">(502) 472-3603</a>.
 </p>
+<br>
 
 <div class="well">
   <p class="lead">Quick Stats for <b>{{ current_user.organization.name }}</b></p>
-  <small>...</small>
-  <p>...</p>
+  <span>Messages scheduled: <b>{{ current_user.organization.scheduled_messages.count() }}</b></span>
+  <br>
+  <span>Responses received: <b>{{ current_user.organization.responses.count() }}</b></span>
+  <br>
+  <span>Organization users: <b>{{ current_user.organization.users.count() }}</b></span>
 </div>
 
 </div>
